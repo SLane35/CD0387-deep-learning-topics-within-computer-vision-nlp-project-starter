@@ -25,12 +25,14 @@ For the hyperparameter tuning, I included the following hyperparameters and rang
 
 These hyperparameters were chosen because they have the greatest effect on a model's performance.
 
+Hyperparameter tuning jobs successfully completed
+![](hyperparameter-tuning.png)
 
-Remember that your README should:
-- Include a screenshot of completed training jobs
-- Logs metrics during the training process
-- Tune at least two hyperparameters
-- Retrieve the best best hyperparameters from all your training jobs
+Log metrics from hyperparameter tuning job
+![](hpt-logs.jpg)
+
+Best parameters
+![](best-parameters.jpg)
 
 ## Debugging and Profiling
 **TODO**: Give an overview of how you performed model debugging and profiling in Sagemaker
