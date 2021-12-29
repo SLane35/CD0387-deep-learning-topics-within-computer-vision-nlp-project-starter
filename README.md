@@ -35,18 +35,15 @@ Best parameters
 ![](best-parameters.jpg)
 
 ## Debugging and Profiling
-**TODO**: Give an overview of how you performed model debugging and profiling in Sagemaker
+Next, I performed model debugging and profiling. I created rules for the profiler, such as loss_not_decreasing and overfit. I then set the profiler and debugger configuration settings and trained the model, making sure to embed the debug/profilng hooks within the training code.
 
 ### Results
-**TODO**: What are the results/insights did you get by profiling/debugging your model?
-
-**TODO** Remember to provide the profiler html/pdf file in your submission.
-
+The model performed well overall. There were some recommendations such as increaasing the batch size or minimizing blocking calls.
 
 ## Model Deployment
-**TODO**: Give an overview of the deployed model and instructions on how to query the endpoint with a sample input.
+The model is deployed to an aws endpoint and is queried using the predict function with the payload (as a series of bytes) and the content type (Image/jpeg) as parameters. The response is a list of 133 numbers representing the 133 dog breed classes. The highest number represents the highest probability that the image is of that class. For example, in our notebook, the 50th number is the highest, hence it predicts that the picture is of a dog from the breed of the 50th class (a Chinese shar-pei). 
 
-**TODO** Remember to provide a screenshot of the deployed active endpoint in Sagemaker.
+Incidentally, the image is actually of a Chow-chow, but it looks similar to the Chinese shar-pei.
 
-## Standout Suggestions
-**TODO (Optional):** This is where you can provide information about any standout suggestions that you have attempted.
+The active endpoint
+![](endpoint.png)
