@@ -23,7 +23,7 @@ For the hyperparameter tuning, I included the following hyperparameters and rang
 2. batch size with options 16, 32, 64, 128
 3. epochs with a range of 2 to 5
 
-These hyperparameters were chosen because they have the greatest effect on a model's performance.
+These hyperparameters were chosen because they have the greatest effect on a model's performance. I call the hpo python file from the train_and_deploy notebook to complete the hyperparameter tuning.
 
 Hyperparameter tuning jobs successfully completed
 ![](hyperparameter-tuning.png)
@@ -35,13 +35,21 @@ Best parameters
 ![](best-parameters.jpg)
 
 ## Debugging and Profiling
-Next, I performed model debugging and profiling. I created rules for the profiler, such as loss_not_decreasing and overfit. I then set the profiler and debugger configuration settings and trained the model, making sure to embed the debug/profilng hooks within the training code.
+Next, I performed model debugging and profiling. I created rules for the profiler, such as loss_not_decreasing and overfit. I then set the profiler and debugger configuration settings and trained the model, making sure to embed the debug/profilng hooks within the training code. The training code is stored in the train_model.py file and is called from  the train_and_deploy notebook. 
 
 ### Results
-The model performed well overall. There were some recommendations such as increaasing the batch size or minimizing blocking calls.
+The model performed well overall. There were some recommendations such as increaasing the batch size or minimizing blocking calls. See more details in the profiler-report.html file.
 
 ## Model Deployment
-The model is deployed to an aws endpoint and is queried using the predict function with the payload (as a series of bytes) and the content type (Image/jpeg) as parameters. The response is a list of 133 numbers representing the 133 dog breed classes. The highest number represents the highest probability that the image is of that class. For example, in our notebook, the 50th number is the highest, hence it predicts that the picture is of a dog from the breed of the 50th class (a Chinese shar-pei). 
+The model is deployed to an aws endpoint and is queried using the predict function with the payload (as a series of bytes) and the content type (Image/jpeg) as parameters. I created a special class ImagePredictor that includes the endpoint name and sagemaker session, as well as a jpeg and json deserializer. I use this class as the parameter for predictor_cls when creating the PyTorchModel that is going to be deployed. Once the model is deployed, I query the model using the following code:
+
+with open("test image.jpg", "rb") as f: 
+    payload = f.read()
+response=predictor.predict(payload, initial_args={"ContentType": "image/jpeg"})
+
+The response is a list of 133 numbers representing the 133 dog breed classes. The highest number represents the highest probability that the image is of that class. For example, in our notebook, the 50th number is the highest, hence it predicts that the picture is of a dog from the breed of the 50th class (a Chinese shar-pei). 
+
+I use the following code to get the highest number: np.argmax(response, 1)
 
 Incidentally, the image is actually of a Chow-chow, but it looks similar to the Chinese shar-pei.
 
