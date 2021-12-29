@@ -39,8 +39,7 @@ def test(model, test_loader, criterion, device):
     total_acc = running_corrects // len(test_loader)
     
     logger.info(
-        "Test set: Average loss: {:.4f}, Accuracy: {}\n".format(
-            total_loss, total_acc)
+       f"Testing Accuracy: {total_acc}, Testing Loss: {total_loss}"
     )
 
 def train(model, train_loader, validation_loader, criterion, optimizer, epochs, device):
@@ -111,12 +110,11 @@ def net():
     
     return model
 
-def create_data_loaders(batch_size):
+def create_data_loaders(data, batch_size):
     
-    train_dir = os.environ['SM_CHANNEL_TRAIN']
-    val_dir = os.environ['SM_CHANNEL_VAL']
-    test_dir=os.environ['SM_CHANNEL_TEST']
-    
+    train_dir = os.path.join(data, 'train')
+    test_dir = os.path.join(data, 'test')
+    val_dir =os.path.join(data, 'valid')
 
     training_transform = transforms.Compose([
         transforms.Resize((224,224)),
@@ -147,7 +145,7 @@ def main(args):
     TODO: Initialize a model by calling the net function
     '''
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    print(f"Running on Device {device}")
+    logger.info(f"Running on Device {device}")
 
     model=net()
     model=model.to(device)
@@ -167,7 +165,7 @@ def main(args):
     #val_dir = os.environ['SM_CHANNEL_VAL']
     #test_dir=os.environ['SM_CHANNEL_TEST']
     print(args.batch_size)
-    train_loader, test_loader, validation_loader = create_data_loaders(args.batch_size)
+    train_loader, test_loader, validation_loader = create_data_loaders(args.data, int(args.batch_size))
     model=train(model, train_loader, validation_loader, loss_criterion, optimizer, args.epochs, device)
     
     '''
@@ -179,7 +177,7 @@ def main(args):
     '''
     TODO: Save the trained model
     '''
-    torch.save(model.state_dict(), os.path.join(args.model_dir, "dogs-resnet18.pt"))
+    torch.save(model.state_dict(), os.path.join(args.model_dir, "model.pth"))
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser()
@@ -209,6 +207,8 @@ if __name__=='__main__':
     )
     
     parser.add_argument("--model-dir", type=str, default=os.environ['SM_MODEL_DIR'])  
+    parser.add_argument('--data', type=str, default=os.environ['SM_CHANNEL_TRAIN'])
+    parser.add_argument('--output_dir', type=str, default=os.environ['SM_OUTPUT_DATA_DIR'])
         
     args=parser.parse_args()
     
